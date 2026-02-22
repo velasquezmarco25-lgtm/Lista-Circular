@@ -1,0 +1,108 @@
+# Definimos la clase Nodo, que representa cada elemento de la lista.
+# Cada nodo tiene un dato (valor) y un enlace al siguiente nodo.
+class Nodo:
+    def __init__(self, dato):
+        self.dato = dato  # Almacena el valor del nodo (por ejemplo, un número o string).
+        self.siguiente = None  # Apunta al siguiente nodo en la lista. Inicialmente None.
+
+# Definimos la clase ListaCircular, que maneja la lista completa.
+class ListaCircular:
+    def __init__(self):
+        self.cabeza = None  # La cabeza (primer nodo) de la lista. Inicialmente vacía (None).
+    
+    # Método para verificar si la lista está vacía.
+    def esta_vacia(self):
+        return self.cabeza is None  # Devuelve True si no hay cabeza, es decir, la lista está vacía.
+    
+    # Método para insertar un nuevo nodo al final de la lista (inserción).
+    # Esto mantiene la estructura circular.
+    def insertar(self, dato):
+        nuevo_nodo = Nodo(dato)  # Creamos un nuevo nodo con el dato proporcionado.
+        
+        if self.esta_vacia():  # Si la lista está vacía...
+            self.cabeza = nuevo_nodo  # El nuevo nodo se convierte en la cabeza.
+            nuevo_nodo.siguiente = self.cabeza  # Y apunta a sí mismo para formar el círculo (solo un nodo).
+        else:  # Si la lista no está vacía...
+            temp = self.cabeza  # Usamos un temporal para recorrer la lista.
+            while temp.siguiente != self.cabeza:  # Recorremos hasta el último nodo (el que apunta de vuelta a la cabeza).
+                temp = temp.siguiente
+            temp.siguiente = nuevo_nodo  # El último nodo ahora apunta al nuevo nodo.
+            nuevo_nodo.siguiente = self.cabeza  # El nuevo nodo apunta de vuelta a la cabeza, cerrando el círculo.
+    
+    # Método para recorrer e imprimir la lista (operación de traversal).
+    # Imprime los datos sin entrar en bucle infinito.
+    def recorrer(self):
+        if self.esta_vacia():  # Si la lista está vacía...
+            print("La lista está vacía.")  # Mostramos un mensaje.
+            return
+        
+        temp = self.cabeza  # Empezamos desde la cabeza.
+        while True:  # Bucle infinito, pero se rompe al volver a la cabeza.
+            print(temp.dato, end=" -> ")  # Imprimimos el dato actual seguido de una flecha.
+            temp = temp.siguiente  # Avanzamos al siguiente nodo.
+            if temp == self.cabeza:  # Si volvemos a la cabeza, hemos completado el ciclo.
+                break  # Salimos del bucle.
+        print("(vuelve a la cabeza)")  # Indicamos que es circular.
+    
+    # Método para eliminar un nodo por su dato (eliminación).
+    # Busca el nodo con el dato dado y lo elimina, manteniendo el círculo.
+    def eliminar(self, dato):
+        if self.esta_vacia():  # Si la lista está vacía...
+            print("La lista está vacía, no se puede eliminar.")  # Mostramos un mensaje.
+            return
+        
+        actual = self.cabeza  # Empezamos desde la cabeza.
+        previo = None  # Variable para rastrear el nodo anterior.
+        
+        while True:  # Bucle para recorrer la lista circular.
+            if actual.dato == dato:  # Si encontramos el nodo con el dato...
+                if previo is None:  # Caso 1: Es la cabeza (previo es None).
+                    # Encontramos el último nodo para redirigirlo.
+                    temp = self.cabeza
+                    while temp.siguiente != self.cabeza:
+                        temp = temp.siguiente
+                    if self.cabeza == self.cabeza.siguiente:  # Si solo hay un nodo...
+                        self.cabeza = None  # Se vacia la lista.
+                    else:
+                        temp.siguiente = self.cabeza.siguiente  # El último apunta al segundo nodo.
+                        self.cabeza = self.cabeza.siguiente  # Movemos la cabeza al siguiente.
+                else:  # Caso 2: No es la cabeza.
+                    previo.siguiente = actual.siguiente  # El previo salta al siguiente del actual (elimina el actual).
+                print(f"Nodo con dato {dato} eliminado.")  # Confirmamos la eliminación.
+                return
+            previo = actual  # Actualizamos previo al nodo actual.
+            actual = actual.siguiente  # Avanzamos al siguiente.
+            if actual == self.cabeza:  # Si volvemos a la cabeza sin encontrar...
+                print(f"Nodo con dato {dato} no encontrado.")  # Mostramos mensaje de no encontrado.
+                return
+
+# Ejemplo de uso (creación, inserción, operaciones, recorrido y eliminación).
+# Esto demuestra cómo funciona todo junto.
+
+lista = ListaCircular()  # Creación de una nueva lista circular vacía.
+
+# Inserciones:
+lista.insertar(10)  # Insertamos el primer nodo (cabeza).
+lista.insertar(20)  # Insertamos al final.
+lista.insertar(30)  # Insertamos al final.
+
+# Recorrido (operación de traversal):
+print("Lista después de inserciones:")
+lista.recorrer()  # Debería imprimir: 10 -> 20 -> 30 -> (vuelve a la cabeza)
+
+# Eliminación:
+lista.eliminar(20)  # Eliminamos el nodo con 20.
+
+# Recorrido después de eliminación:
+print("Lista después de eliminar 20:")
+lista.recorrer()  # Debería imprimir: 10 -> 30 -> (vuelve a la cabeza)
+
+# Otra eliminación (de la cabeza):
+lista.eliminar(10)  # Eliminamos la cabeza.
+
+# Recorrido final:
+print("Lista después de eliminar 10:")
+lista.recorrer()  # Debería imprimir: 30 -> (vuelve a la cabeza)
+
+# Eliminación de un nodo no existente:
+lista.eliminar(40)  # Mostrará "no encontrado".
